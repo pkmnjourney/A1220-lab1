@@ -13,6 +13,44 @@ CATEGORIES = [
     "Other",
 ]
 
+def sanitize_amount(data: dict) -> dict:
+    """Normalize the 'amount' field in a receipt dictionary.
+
+    Removes a leading '$' if present, converts the amount to float,
+    and replaces the value in the input dictionary.
+
+    Args:
+        data: Receipt dictionary returned by the language model.
+
+    Returns:
+        The same dictionary with a normalized float 'amount' when possible.
+        If parsing fails or amount is missing, amount is set to None.
+    """
+    if not isinstance(data, dict):
+        return data
+
+    raw = data.get("amount", None)
+    if raw is None:
+        return data
+
+    # If it's already a number, just convert to float.
+    if isinstance(raw, (int, float)):
+        data["amount"] = float(raw)
+        return data
+
+    # Otherwise, try to clean a string like "$12.34" or "  $1,234.56  "
+    if isinstance(raw, str):
+        cleaned = raw.strip().replace("$", "").replace(",", "")
+        if cleaned == "":
+            data["amount"] = None
+            return data
+        try:
+            data["amount"] = float(cleaned)
+        except ValueError:
+            data["amount"] = None
+
+    return data
+
 
 def extract_receipt_info(image_b64: str) -> dict:
     """Extract structured receipt information using the OpenAI API.
@@ -65,4 +103,5 @@ def extract_receipt_info(image_b64: str) -> dict:
             }
         ],
     )
-    return json.loads(response.choices[0].message.content)
+    data = json.loads(response.choices[0].message.content)
+    return sanitize_amount(data)
