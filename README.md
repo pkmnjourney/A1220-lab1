@@ -94,6 +94,18 @@ If a field cannot be determined, the value will be `null`.
 
 ---
 
+## Visualization (Expenses by Category)
+
+The `--plot` option generates a pie chart saved to `expenses_by_category.png`.
+
+Readability choices:
+- Start angle set to 90° so slices begin at the top.
+- Categories sorted by total spent (largest first).
+- The largest slice is slightly separated (“explode”) to draw attention.
+- A legend is placed outside the pie to avoid cluttering labels on the chart.
+
+---
+
 ## Notes
 
 - Receipt images are not included in version control.
